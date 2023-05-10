@@ -15,7 +15,8 @@ func main() {
 	accesskey := GetEnv("MINIO_ACCESSKEY", "Q3AM3UQ867SPQQA43P2F")
 	secretkey := GetEnv("MINIO_SECRETKEY", "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG")
 	bucket := GetEnv("MINIO_BUCKET", "test")
-	models.CurrentConfig = models.Config{Entrypoint: entrypoint + ":" + port, Bucket: bucket, AccessKey: accesskey, SecretKey: secretkey}
+	publicUrl := "https://" + entrypoint + "/"
+	models.CurrentConfig = models.Config{Entrypoint: entrypoint + ":" + port, Bucket: bucket, AccessKey: accesskey, SecretKey: secretkey, PublicUrl: publicUrl}
 	log.Printf("Using endpoint: %s ", entrypoint)
 	gin.SetMode(gin.ReleaseMode)
 	r := routes.Routes()

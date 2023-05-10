@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/CSpecht/rest2s3/models"
 	"github.com/gin-gonic/gin"
@@ -53,7 +54,13 @@ func UploadFile(c *gin.Context) {
 		return
 	}
 
+	type result struct {
+		PublicUrl  string
+		Size       int64
+		Expiration time.Time
+	}
+
 	log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
-	c.JSON(http.StatusCreated, info)
+	c.JSON(http.StatusCreated, result{PublicUrl: models.CurrentConfig.PublicUrl + info.Key, Size: info.Size, Expiration: info.Expiration})
 
 }

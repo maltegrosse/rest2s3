@@ -13,6 +13,7 @@ type Config struct {
 	Bucket     string
 	AccessKey  string
 	SecretKey  string
+	PublicUrl  string
 }
 
 var CurrentConfig Config
