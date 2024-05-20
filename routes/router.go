@@ -9,5 +9,6 @@ func Routes() *gin.Engine {
 	r := gin.Default()
 	r.POST("/upload", controllers.UploadFile)
 	r.GET("/ping", controllers.Ping)
+	r.GET("/upload/:objectFolder/:objectName", controllers.DownloadFile)
 	return r
 }
