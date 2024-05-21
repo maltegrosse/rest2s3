@@ -11,16 +11,18 @@ import (
 
 func main() {
 	entrypoint := GetEnv("MINIO_ENDPOINT", "play.min.io")
-	port := GetEnv("MINIO_PORT", "9443")
-	accesskey := GetEnv("MINIO_ACCESSKEY", "Q3AM3UQ867SPQQA43P2F")
-	secretkey := GetEnv("MINIO_SECRETKEY", "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG")
-	bucket := GetEnv("MINIO_BUCKET", "test")
-	publicUrl := "https://" + entrypoint + "/" + bucket + "/"
+	port := GetEnv("MINIO_PORT", "443")
+	accesskey := GetEnv("MINIO_ACCESSKEY", "minio")
+	secretkey := GetEnv("MINIO_SECRETKEY", "minio")
+	bucket := GetEnv("MINIO_BUCKET", "upload")
+	publicUrl := GetEnv("PUBLIC_URL", "http://localhost:8080")
+	apiPort := GetEnv("API_PORT", "8080")
 	models.CurrentConfig = models.Config{Entrypoint: entrypoint + ":" + port, Bucket: bucket, AccessKey: accesskey, SecretKey: secretkey, PublicUrl: publicUrl}
 	log.Printf("Using endpoint: %s ", entrypoint)
 	gin.SetMode(gin.ReleaseMode)
 	r := routes.Routes()
-	r.Run()
+	log.Printf("Running on port: %s ", apiPort)
+	r.Run(":" + apiPort)
 
 }
 
