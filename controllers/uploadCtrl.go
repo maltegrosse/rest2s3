@@ -43,7 +43,7 @@ func DownloadFile(c *gin.Context) {
 	splitted := strings.Split(objectName, "/")
 
 	extraHeaders := map[string]string{
-		"Content-Disposition": "attachment; filename=" + fmt.Sprint(splitted[:1]),
+		"Content-Disposition": "attachment; filename=" + fmt.Sprint(splitted[len(splitted)-1]),
 	}
 	c.DataFromReader(http.StatusOK, stat.Size, stat.ContentType, object, extraHeaders)
 
