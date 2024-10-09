@@ -1,0 +1,139 @@
+<html> 
+<head>
+<style>
+  #drop_zone {
+    color: black;
+    padding: 0px 20px 0px 20px;
+    margin: 0px 10px 0px 10px;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 5px; 
+
+  }
+  #drop_zone:hover {
+    background-color: #f7f7f7;
+    border: 2px solid #A30000;
+    border-radius: 5px;
+    color:#A30000;
+   
+  }
+
+  .card {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 80%;    
+    height: 15%;
+    min-height:200px;
+    border: 2px solid rgba(0, 0, 0, .3);
+    border-radius: 5px
+  }
+  .card > code {
+   margin: 10px;
+ 
+  }
+  #res {
+    margin: 10px;
+    text-align: center;
+  }
+  .card > img {
+    position: absolute;
+    height: 50px;
+    width:50px;
+    top: 15px;
+    left: 10px;
+  }
+  .card > h1 {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: #6a6e73
+  }
+</style>
+<script>
+    async function dropHandler(ev) {
+    
+
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+    
+    if (ev.dataTransfer.items.length > 0) {
+        let item = ev.dataTransfer.items[0]
+        if (item.kind == "file") {
+            const file = item.getAsFile();
+            upload_file(file)
+            return
+        }
+    }
+    
+    }
+    async function dragOverHandler(ev) {
+        
+
+        // Prevent default behavior (Prevent file from being opened)
+        ev.preventDefault();
+    }
+
+    async function clickHandler(ev) {
+        [fileHandle] = await window.showOpenFilePicker();
+      
+        
+        //get the file object from the file handle
+        const file = await fileHandle.getFile();
+
+        await upload_file(file)
+    }
+    async function upload_file(file) {
+        const url ="/upload"; 
+        var data = new FormData()
+        data.append('fileUpload',file,file.name)
+        
+        try {
+            const response = await fetch(url, {method: 'POST', body: data});
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const json = await response.json();
+            
+            callb_json(json)
+        } catch (error) {
+            console.error(error.message);
+        }
+      
+        
+        
+    }
+    async function callb_json(res) {
+        
+       
+        
+        let html = "<code>"
+        for (const key in res) {
+            if (key == "url") {
+                html += "<b>" + key  + ": </b>" + "<a href='" + res[key] + "'>"+res[key] + "</a> "
+            } else {
+                html +=  "<b>" + key  + ": </b>" +  res[key] + " | "
+            }
+            
+        }
+        html += "</code>"
+        document.getElementById("res").innerHTML = html;
+    }
+</script>
+</head>
+<body>
+
+    <div class="card">
+        <h1 style="text-align: center;">Share Sandbox</h1> 
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgd2lkdGg9IjI3NDZweCIgaGVpZ2h0PSIyNzQ2cHgiIHN0eWxlPSJzaGFwZS1yZW5kZXJpbmc6Z2VvbWV0cmljUHJlY2lzaW9uOyB0ZXh0LXJlbmRlcmluZzpnZW9tZXRyaWNQcmVjaXNpb247IGltYWdlLXJlbmRlcmluZzpvcHRpbWl6ZVF1YWxpdHk7IGZpbGwtcnVsZTpldmVub2RkOyBjbGlwLXJ1bGU6ZXZlbm9kZCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgo8Zz48cGF0aCBzdHlsZT0ib3BhY2l0eTowLjk5OSIgZmlsbD0iIzAwMDAwMCIgZD0iTSAxMzIwLjUsLTAuNSBDIDEzNTUuMTcsLTAuNSAxMzg5LjgzLC0wLjUgMTQyNC41LC0wLjVDIDE3NDMuNzMsMTQuODc4OCAyMDI0LjczLDEyNS4wNDYgMjI2Ny41LDMzMEMgMjQ5Mi45LDUyNi4xMzggMjY0MC43Myw3NzAuMzA1IDI3MTEsMTA2Mi41QyAyNzMwLjIzLDExNDcuNjIgMjc0MS43MywxMjMzLjYyIDI3NDUuNSwxMzIwLjVDIDI3NDUuNSwxMzU1LjE3IDI3NDUuNSwxMzg5LjgzIDI3NDUuNSwxNDI0LjVDIDI3MzAuMTIsMTc0My43MyAyNjE5Ljk1LDIwMjQuNzMgMjQxNSwyMjY3LjVDIDIyMTguODYsMjQ5Mi45IDE5NzQuNywyNjQwLjczIDE2ODIuNSwyNzExQyAxNTk3LjM4LDI3MzAuMjMgMTUxMS4zOCwyNzQxLjczIDE0MjQuNSwyNzQ1LjVDIDEzODkuODMsMjc0NS41IDEzNTUuMTcsMjc0NS41IDEzMjAuNSwyNzQ1LjVDIDEwMDEuMjcsMjczMC4xMiA3MjAuMjY1LDI2MTkuOTUgNDc3LjUsMjQxNUMgMjUyLjEwMiwyMjE4Ljg2IDEwNC4yNjksMTk3NC43IDM0LDE2ODIuNUMgMTQuNzY3OSwxNTk3LjM4IDMuMjY3ODYsMTUxMS4zOCAtMC41LDE0MjQuNUMgLTAuNSwxMzg5LjgzIC0wLjUsMTM1NS4xNyAtMC41LDEzMjAuNUMgMTQuODc4OCwxMDAxLjI3IDEyNS4wNDYsNzIwLjI2NSAzMzAsNDc3LjVDIDUyNi4xMzgsMjUyLjEwMiA3NzAuMzA1LDEwNC4yNjkgMTA2Mi41LDM0QyAxMTQ3LjYyLDE0Ljc2NzkgMTIzMy42MiwzLjI2Nzg2IDEzMjAuNSwtMC41IFogTSAxNzc4LjUsMzAxLjUgQyAxOTAxLjYyLDMzNS4xOTggMjAyNC42MiwzNjkuMzY1IDIxNDcuNSw0MDRDIDIxMjYuMiw0NjQuMDk4IDIxMDUuMDQsNTI0LjI2NSAyMDg0LDU4NC41QyAyMDYwLjQ1LDYzNC4zNTcgMjAyMS4yOSw2NjMuMTkxIDE5NjYuNSw2NzFDIDE5NDUuNzQsNjcyLjcxOSAxOTI1LjI0LDY3MS4yMTkgMTkwNSw2NjYuNUMgMTkwNC4yMyw2NjYuNjQ1IDE5MDMuNTYsNjY2Ljk3OCAxOTAzLDY2Ny41QyAxODY2LjAzLDc3MC4wOTMgMTgyOC44Niw4NzIuNTkzIDE3OTEuNSw5NzVDIDE4MjAuMDYsOTc5Ljc0MyAxODQ3LjA2LDk4OS4wNzYgMTg3Mi41LDEwMDNDIDE5MjEuMDgsMTAzNC4xMiAxOTQ2LjA4LDEwNzguNzkgMTk0Ny41LDExMzdDIDE5NDcuMTEsMTE1Mi4xIDE5NDQuOTQsMTE2Ni45MyAxOTQxLDExODEuNUMgMTkxMy4xNywxMjYwLjUgMTg4NS4zMywxMzM5LjUgMTg1Ny41LDE0MTguNUMgMTg3NS4xMiwxNDM0Ljk1IDE4ODguNjIsMTQ1NC4yOSAxODk4LDE0NzYuNUMgMTkwMC42NiwxNDgyLjc5IDE5MDIuMTYsMTQ4OS4xMiAxOTAyLjUsMTQ5NS41QyAxNzA1LjYyLDEzOTQuODYgMTQ5Ni42MiwxMzQwLjM2IDEyNzUuNSwxMzMyQyAxMjQwLjgxLDEzMzEuMiAxMjA2LjE0LDEzMzEuODYgMTE3MS41LDEzMzRDIDExMzUuNjcsMTMzNi41NSAxMTAwLjAxLDEzNDAuMjIgMTA2NC41LDEzNDVDIDExMzEuMywxMzA3Ljg0IDEyMDIuNjQsMTI4My44NCAxMjc4LjUsMTI3M0MgMTMwNi4xNCwxMjY5LjQ3IDEzMzMuODEsMTI2Ni42NCAxMzYxLjUsMTI2NC41QyAxMzc1LjksMTIyNi4yOCAxMzg5LjksMTE4Ny45NSAxNDAzLjUsMTE0OS41QyAxMjYxLjE0LDExNDMuOTIgMTEyMS40NywxMTYwLjc1IDk4NC41LDEyMDBDIDgyMy4xMDcsMTI0Ni41NiA2NzAuNjA3LDEzMTMuMDYgNTI3LDEzOTkuNUMgNDcyLjg0MiwxMzc2LjUxIDQxOS4wMDksMTM1Mi44NCAzNjUuNSwxMzI4LjVDIDY5NS4zOCwxMjAwLjI2IDEwMjUuMjEsMTA3MS45MyAxMzU1LDk0My41QyAxMzk1LjQ0LDk1OS4yNiAxNDM1Ljk0LDk3NC45MjcgMTQ3Ni41LDk5MC41QyAxNTMwLDkzOC4xMTkgMTU5My4zNCw5MjAuOTUyIDE2NjYuNSw5MzlDIDE2NzYuOSw5NDEuOTEgMTY4Ny4wNiw5NDUuNDEgMTY5Nyw5NDkuNUMgMTczNC42NSw4NDYuNzI0IDE3NzEuODIsNzQzLjcyNCAxODA4LjUsNjQwLjVDIDE3NDIuMjcsNjIzLjA5NCAxNzA4Ljc3LDU4MC4wOTQgMTcwOCw1MTEuNUMgMTcwOC41OCw1MDMuNyAxNzA5LjkxLDQ5Ni4wMzQgMTcxMiw0ODguNUMgMTczNC40Nyw0MjYuMjU3IDE3NTYuNjQsMzYzLjkyNCAxNzc4LjUsMzAxLjUgWiBNIDE5OTIuNSwxMTk0LjUgQyAxOTk4LjcsMTE5NS42MiAyMDA0LjcsMTE5Ny40NSAyMDEwLjUsMTIwMEMgMjEyMy4yOCwxMjQyLjgxIDIyMzUuOTQsMTI4NS44MSAyMzQ4LjUsMTMyOUMgMjI5Ni4zMiwxMzUyLjU5IDIyNDMuOTgsMTM3NS45MiAyMTkxLjUsMTM5OUMgMjE4OS4yNSwxNDAwLjE1IDIxODYuOTEsMTQwMC40OCAyMTg0LjUsMTQwMEMgMjExMS44NywxMzU3LjkzIDIwMzcuMzcsMTMxOS4xIDE5NjEsMTI4My41QyAxOTcxLjE4LDEyNTMuODEgMTk4MS42OCwxMjI0LjE0IDE5OTIuNSwxMTk0LjUgWiBNIDI5MC41LDEzNTcuNSBDIDYzMy41OTYsMTUwOS44OCA5NzYuNTk2LDE2NjIuNTUgMTMxOS41LDE4MTUuNUMgMTMyMC44MywxOTgyLjUgMTMyMC44MywyMTQ5LjUgMTMxOS41LDIzMTYuNUMgOTc2LjY3MSwyMTIyLjU5IDYzNC4wMDQsMTkyOC40MiAyOTEuNSwxNzM0QyAyOTAuNTAxLDE2MDguNTcgMjkwLjE2OCwxNDgzLjA3IDI5MC41LDEzNTcuNSBaIE0gMjQyMS41LDEzNTcuNSBDIDI0MjIuODMsMTQyMC4xNiAyNDIzLjUsMTQ4My4xNiAyNDIzLjUsMTU0Ni41QyAyNDIzLjMzLDE2MDkuNSAyNDIzLjE3LDE2NzIuNSAyNDIzLDE3MzUuNUMgMjA4MC40MSwxOTI5LjU1IDE3MzcuNTgsMjEyMy4yMSAxMzk0LjUsMjMxNi41QyAxMzkzLjE3LDIxNDkuNSAxMzkzLjE3LDE5ODIuNSAxMzk0LjUsMTgxNS41QyAxNzM3LjA0LDE2NjMuMDYgMjA3OS4zNywxNTEwLjM5IDI0MjEuNSwxMzU3LjUgWiIvPjwvZz4KPGc+PHBhdGggc3R5bGU9Im9wYWNpdHk6MSIgZmlsbD0iIzAwMDAwMCIgZD0iTSAxODM4LjUsNDI3LjUgQyAxODk3LjYsNDQzLjE5MiAxOTU2LjYsNDU5LjM1OCAyMDE1LjUsNDc2QyAyMDE2LjQ4LDQ3OC4xNDcgMjAxNi4zMSw0ODAuMzE0IDIwMTUsNDgyLjVDIDIwMDUuMzksNTA4LjY1NyAxOTk1LjM5LDUzNC42NTcgMTk4NSw1NjAuNUMgMTk3NS42NCw1NjkuNjIgMTk2NC40Nyw1NzMuMTIgMTk1MS41LDU3MUMgMTkxMy44OSw1NjAuMTMxIDE4NzYuMjIsNTQ5LjQ2NCAxODM4LjUsNTM5QyAxODI3LjQ1LDUzNS43MzYgMTgxOC45NSw1MjkuMjM2IDE4MTMsNTE5LjVDIDE4MTEuNTIsNTE0LjkyNCAxODExLjE5LDUxMC4yNTcgMTgxMiw1MDUuNUMgMTgyMC45NCw0NzkuNTEzIDE4MjkuNzcsNDUzLjUxMyAxODM4LjUsNDI3LjUgWiIvPjwvZz4KPC9zdmc+Cg=="/>
+        <div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" onClick="clickHandler(event);">
+            <p>Drag one file to this <i>drop zone</i>.</p>
+        </div>
+        <div id="res"></div>
+    </div>
+
+</body>
+
+</html>

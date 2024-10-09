@@ -1,6 +1,7 @@
 package models
 
 import (
+	"html/template"
 	"log"
 
 	"github.com/minio/minio-go/v7"
@@ -14,6 +15,8 @@ type Config struct {
 	AccessKey  string
 	SecretKey  string
 	PublicUrl  string
+	Mode string
+	Index *template.Template
 }
 
 var CurrentConfig Config

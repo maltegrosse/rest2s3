@@ -95,3 +95,13 @@ func UploadFile(c *gin.Context) {
 	c.JSON(http.StatusCreated, result{PublicUrl: models.CurrentConfig.PublicUrl+"/upload/" + info.Key, Size: info.Size, Expiration: info.Expiration})
 
 }
+
+func ShowHomepage(c *gin.Context) {
+	// render a static template file	
+	tmpl := models.CurrentConfig.Index
+	err := tmpl.Execute(c.Writer, nil)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+	
+}

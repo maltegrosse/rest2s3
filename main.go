@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"os"
 
@@ -14,13 +15,20 @@ func main() {
 	port := GetEnv("MINIO_PORT", "443")
 	accesskey := GetEnv("MINIO_ACCESSKEY", "minio")
 	secretkey := GetEnv("MINIO_SECRETKEY", "minio")
+	mode := GetEnv("mode", "cli")
 	bucket := GetEnv("MINIO_BUCKET", "upload")
 	publicUrl := GetEnv("PUBLIC_URL", "http://localhost:8080")
 	apiPort := GetEnv("API_PORT", "8080")
-	models.CurrentConfig = models.Config{Entrypoint: entrypoint + ":" + port, Bucket: bucket, AccessKey: accesskey, SecretKey: secretkey, PublicUrl: publicUrl}
+	var tmplFile = "idx.tmpl"
+	tmpl, err := template.New(tmplFile).ParseFiles(tmplFile)
+	if err != nil {
+		panic(err)
+	}
+	models.CurrentConfig = models.Config{Entrypoint: entrypoint + ":" + port, Bucket: bucket, AccessKey: accesskey, SecretKey: secretkey, PublicUrl: publicUrl, Mode: mode, Index: tmpl}
 	log.Printf("Using endpoint: %s ", entrypoint)
 	gin.SetMode(gin.ReleaseMode)
 	r := routes.Routes()
+	
 	log.Printf("Running on port: %s ", apiPort)
 	r.Run(":" + apiPort)
 
