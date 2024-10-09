@@ -13,6 +13,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=$ARCH go build -a -o /app .
 FROM docker.io/alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
 COPY --from=builder /app ./
+COPY --from=builder /go/src/rest2s3/idx.tmpl ./
 RUN chmod +x ./app
 ENTRYPOINT ["./app"]
 EXPOSE 8080
